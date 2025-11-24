@@ -191,9 +191,17 @@
 
     <script>
         let tg = window.Telegram.WebApp;
+        tg.ready();
         tg.expand();
         tg.MainButton.setText("Uložit docházku");
         tg.MainButton.show();
+        
+        console.log('WebApp initialized:', {
+            isExpanded: tg.isExpanded,
+            version: tg.version,
+            platform: tg.platform,
+            sendDataAvailable: typeof tg.sendData === 'function'
+        });
 
         let attendanceRecords = [];
         let selectedDate = new Date().toISOString().split('T')[0];
@@ -498,8 +506,28 @@
         document.getElementById('addAttendanceBtn').addEventListener('click', addAttendanceRecord);
 
         tg.MainButton.onClick(() => {
-            const formData = collectFormData();
-            tg.sendData(JSON.stringify(formData));
+            try {
+                const formData = collectFormData();
+                
+                // Debug: Show what we're sending via alert (visible in all Telegram clients)
+                const dataSummary = `DEBUG: Sending data\n\nDate: ${formData.date}\nRecords: ${formData.attendanceRecords.length}`;
+                
+                // Check if WebApp is available
+                if (!tg || typeof tg.sendData !== 'function') {
+                    const errorMsg = 'ERROR: tg.sendData not available!';
+                    tg.showAlert(errorMsg);
+                    return;
+                }
+                
+                // Show debug info first
+                tg.showAlert(dataSummary);
+                
+                // Actually send the data
+                tg.sendData(JSON.stringify(formData));
+                
+            } catch (error) {
+                tg.showAlert('Error: ' + error.message);
+            }
         });
 
         initializeForm();
