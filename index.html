@@ -190,31 +190,8 @@
     </div>
 
     <script>
-        // Initialize Telegram WebApp
-        let tg = window.Telegram?.WebApp;
-        
-        if (!tg) {
-            console.error('Telegram WebApp not available');
-            // Fallback for testing outside Telegram
-            tg = {
-                expand: () => {},
-                MainButton: {
-                    setText: () => {},
-                    show: () => {},
-                    enable: () => {},
-                    disable: () => {},
-                    onClick: () => {},
-                    onEvent: () => {}
-                },
-                sendData: () => {},
-                showAlert: (msg) => alert(msg),
-                initDataUnsafe: {}
-            };
-        } else {
-            tg.ready();
-            tg.expand();
-        }
-        
+        let tg = window.Telegram.WebApp;
+        tg.expand();
         tg.MainButton.setText("Uložit docházku");
         tg.MainButton.show();
 
@@ -521,32 +498,8 @@
         document.getElementById('addAttendanceBtn').addEventListener('click', addAttendanceRecord);
 
         tg.MainButton.onClick(() => {
-            try {
-                const formData = collectFormData();
-                console.log('Sending attendance data:', formData);
-                
-                // Show loading state
-                tg.MainButton.setText("Ukládám...");
-                tg.MainButton.disable();
-                
-                tg.sendData(JSON.stringify(formData));
-                
-                // Reset button after a delay (in case of error)
-                setTimeout(() => {
-                    tg.MainButton.setText("Uložit docházku");
-                    validateForm();
-                }, 3000);
-            } catch (error) {
-                console.error('Error sending data:', error);
-                tg.showAlert('Chyba při odesílání dat: ' + error.message);
-                tg.MainButton.setText("Uložit docházku");
-                validateForm();
-            }
-        });
-
-        // Handle errors from Telegram WebApp
-        tg.onEvent('viewportChanged', () => {
-            tg.expand();
+            const formData = collectFormData();
+            tg.sendData(JSON.stringify(formData));
         });
 
         initializeForm();
