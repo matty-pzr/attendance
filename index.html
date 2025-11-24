@@ -206,21 +206,44 @@
         });
 
         function initializeForm() {
-            const initDataUnsafe = tg.initDataUnsafe;
-            if (initDataUnsafe && initDataUnsafe.start_param) {
+            // Try to get data from start_param (URL parameter or initData)
+            let dataToLoad = null;
+            
+            // Check URL parameters first
+            const urlParams = new URLSearchParams(window.location.search);
+            const startParam = urlParams.get('start_param');
+            
+            if (startParam) {
                 try {
-                    const data = JSON.parse(decodeURIComponent(initDataUnsafe.start_param));
-                    if (data.date) {
-                        selectedDate = data.date;
-                        document.getElementById('datePicker').value = selectedDate;
-                    }
-                    if (data.attendanceRecords && Array.isArray(data.attendanceRecords)) {
-                        attendanceRecords = data.attendanceRecords;
-                    }
+                    dataToLoad = JSON.parse(decodeURIComponent(startParam));
                 } catch (e) {
-                    console.log('No attendance data to load');
+                    console.log('Failed to parse start_param from URL');
                 }
             }
+            
+            // Fallback to initDataUnsafe
+            if (!dataToLoad) {
+                const initDataUnsafe = tg.initDataUnsafe;
+                if (initDataUnsafe && initDataUnsafe.start_param) {
+                    try {
+                        dataToLoad = JSON.parse(decodeURIComponent(initDataUnsafe.start_param));
+                    } catch (e) {
+                        console.log('Failed to parse start_param from initData');
+                    }
+                }
+            }
+            
+            // Load data if available
+            if (dataToLoad) {
+                if (dataToLoad.date) {
+                    selectedDate = dataToLoad.date;
+                    document.getElementById('datePicker').value = selectedDate;
+                }
+                if (dataToLoad.attendanceRecords && Array.isArray(dataToLoad.attendanceRecords)) {
+                    attendanceRecords = dataToLoad.attendanceRecords;
+                }
+            }
+            
             renderAttendance();
             validateForm();
         }
