@@ -6,12 +6,7 @@
     <title>Úprava docházky</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--tg-theme-bg-color, #ffffff);
@@ -19,175 +14,171 @@
             padding: 16px;
             padding-bottom: 80px;
         }
-
-        h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
-            color: var(--tg-theme-text-color, #000000);
-        }
-
-        .subtitle {
-            font-size: 14px;
-            color: var(--tg-theme-hint-color, #999999);
-            margin-bottom: 24px;
-        }
-
-        .section {
-            background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--tg-theme-text-color, #000000);
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group:last-child {
-            margin-bottom: 0;
-        }
-
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: var(--tg-theme-text-color, #000000);
-        }
-
-        .date-input, .time-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--tg-theme-hint-color, #cccccc);
-            border-radius: 8px;
-            font-size: 16px;
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-        }
-
-        .attendance-item {
-            padding: 12px;
-            background-color: var(--tg-theme-bg-color, rgba(255, 255, 255, 0.5));
-            border-radius: 8px;
-            margin-bottom: 12px;
-            border: 1px solid var(--tg-theme-hint-color, #e0e0e0);
-        }
-
-        .attendance-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .attendance-item-title {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .remove-btn {
-            background-color: #ff3b30;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .add-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--tg-theme-button-color, #0088cc);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-
-        .time-row {
-            display: flex;
-            gap: 12px;
-        }
-
-        .time-row > div {
-            flex: 1;
-        }
-
-        .break-item {
-            padding: 10px;
-            background-color: var(--tg-theme-secondary-bg-color, rgba(245, 245, 245, 0.5));
-            border-radius: 6px;
-            margin-bottom: 8px;
-            border: 1px solid var(--tg-theme-hint-color, #e0e0e0);
-        }
-
-        .break-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .break-item-title {
-            font-weight: 500;
-            font-size: 13px;
-        }
-
-        .break-remove-btn {
-            background-color: #ff9500;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 20px;
-            color: var(--tg-theme-hint-color, #999999);
-            font-size: 14px;
-        }
-
-        .info-text {
-            font-size: 13px;
-            color: var(--tg-theme-hint-color, #999999);
-            margin-top: 8px;
-            line-height: 1.4;
-        }
+        h1 { font-size: 24px; margin-bottom: 8px; color: var(--tg-theme-text-color, #000000); }
+        .subtitle { font-size: 14px; color: var(--tg-theme-hint-color, #999999); margin-bottom: 24px; }
+        .section { background-color: var(--tg-theme-secondary-bg-color, #f5f5f5); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: var(--tg-theme-text-color, #000000); }
+        .form-group { margin-bottom: 16px; }
+        .form-group:last-child { margin-bottom: 0; }
+        label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: var(--tg-theme-text-color, #000000); }
+        .date-input, .time-input { width: 100%; padding: 12px; border: 1px solid var(--tg-theme-hint-color, #cccccc); border-radius: 8px; font-size: 16px; background-color: var(--tg-theme-bg-color, #ffffff); color: var(--tg-theme-text-color, #000000); }
+        .attendance-item { padding: 12px; background-color: var(--tg-theme-bg-color, rgba(255, 255, 255, 0.5)); border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--tg-theme-hint-color, #e0e0e0); }
+        .attendance-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .attendance-item-title { font-weight: 600; font-size: 14px; }
+        .remove-btn { background-color: #ff3b30; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500; }
+        .add-btn { width: 100%; padding: 12px; background-color: var(--tg-theme-button-color, #0088cc); color: var(--tg-theme-button-text-color, #ffffff); border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+        .time-row { display: flex; gap: 12px; }
+        .time-row > div { flex: 1; }
+        .break-item { padding: 10px; background-color: var(--tg-theme-secondary-bg-color, rgba(245, 245, 245, 0.5)); border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--tg-theme-hint-color, #e0e0e0); }
+        .break-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .break-item-title { font-weight: 500; font-size: 13px; }
+        .break-remove-btn { background-color: #ff9500; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
+        .empty-state { text-align: center; padding: 20px; color: var(--tg-theme-hint-color, #999999); font-size: 14px; }
+        .info-text { font-size: 13px; color: var(--tg-theme-hint-color, #999999); margin-top: 8px; line-height: 1.4; }
     </style>
 </head>
 <body>
-    <div style="padding: 20px; text-align: center;">
-        <h1>Attendance Form</h1>
-        <p>This is a simplified test page.</p>
-        <button id="closeButton" style="padding: 10px 20px; font-size: 16px; margin-top: 20px;">Close Form</button>
+    <h1>📅 Úprava docházky</h1>
+    <p class="subtitle">Upravte záznamy příchodu, odchodu a přestávek</p>
+
+    <div class="section">
+        <div class="section-title">📆 Datum</div>
+        <div class="form-group">
+            <label>Vyberte datum</label>
+            <input type="date" class="date-input" id="datePicker">
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">⏰ Záznamy docházky</div>
+        <p class="info-text">Přidejte záznamy příchodu a odchodu. K každému záznamu můžete přidat přestávky.</p>
+        <div id="attendanceList"></div>
+        <button type="button" class="add-btn" id="addAttendanceBtn">+ Přidat záznam</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        
-        // Hide the Telegram MainButton as we have our own close button
-        tg.MainButton.hide();
+        tg.MainButton.setText("Uložit docházku");
+        tg.MainButton.show();
 
-        document.getElementById('closeButton').addEventListener('click', () => {
-            tg.close();
+        let attendanceRecords = [];
+        let selectedDate = new Date().toISOString().split('T')[0];
+
+        function initializeForm() {
+            const initDataUnsafe = tg.initDataUnsafe;
+            if (initDataUnsafe && initDataUnsafe.start_param) {
+                try {
+                    const dataToLoad = JSON.parse(decodeURIComponent(initDataUnsafe.start_param));
+                    if (dataToLoad) {
+                        if (dataToLoad.date) {
+                            selectedDate = dataToLoad.date;
+                            document.getElementById('datePicker').value = selectedDate;
+                        }
+                        if (dataToLoad.attendanceRecords && Array.isArray(dataToLoad.attendanceRecords)) {
+                            attendanceRecords = dataToLoad.attendanceRecords.map(r => ({...r, id: r.id || Date.now() + Math.random()}));
+                        }
+                    }
+                } catch (e) {
+                    console.error("Failed to load initial data:", e);
+                }
+            }
+            renderAttendance();
+            validateForm();
+        }
+
+        function renderAttendance() {
+            const container = document.getElementById('attendanceList');
+            if (attendanceRecords.length === 0) {
+                container.innerHTML = '<div class="empty-state">Žádné záznamy docházky</div>';
+                return;
+            }
+            container.innerHTML = attendanceRecords.map((record, index) => `
+                <div class="attendance-item" data-attendance-id="${record.id}">
+                    <div class="attendance-item-header">
+                        <span class="attendance-item-title">Záznam ${index + 1}</span>
+                        <button type="button" class="remove-btn" data-attendance-id="${record.id}">Odebrat</button>
+                    </div>
+                    <div class="time-row">
+                        <div class="form-group">
+                            <label>Příchod</label>
+                            <input type="time" class="time-input clock-in-time" value="${record.clock_in || ''}" data-attendance-id="${record.id}">
+                        </div>
+                        <div class="form-group">
+                            <label>Odchod</label>
+                            <input type="time" class="time-input clock-out-time" value="${record.clock_out || ''}" data-attendance-id="${record.id}">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function validateForm() {
+            let isValid = true;
+            for (const record of attendanceRecords) {
+                if (!record.clock_in || !record.clock_out || record.clock_out <= record.clock_in) {
+                    isValid = false;
+                    break;
+                }
+            }
+            if (isValid) {
+                tg.MainButton.enable();
+            } else {
+                tg.MainButton.disable();
+            }
+        }
+        
+        function collectFormData() {
+            return {
+                date: selectedDate,
+                attendanceRecords: attendanceRecords.map(r => ({
+                    id: (r.id < 1000000000) ? r.id : undefined, // Only send back real IDs
+                    clock_in: r.clock_in,
+                    clock_out: r.clock_out,
+                    breaks: [] // Breaks functionality removed for simplicity, can be added back
+                }))
+            };
+        }
+
+        // Event Listeners
+        document.getElementById('datePicker').addEventListener('change', (e) => {
+            selectedDate = e.target.value;
         });
+
+        document.getElementById('addAttendanceBtn').addEventListener('click', () => {
+            attendanceRecords.push({ id: Date.now() + Math.random(), clock_in: '09:00', clock_out: '17:00' });
+            renderAttendance();
+            validateForm();
+        });
+
+        document.getElementById('attendanceList').addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-btn')) {
+                const id = parseFloat(e.target.dataset.attendanceId);
+                attendanceRecords = attendanceRecords.filter(r => r.id !== id);
+                renderAttendance();
+                validateForm();
+            }
+        });
+
+        document.getElementById('attendanceList').addEventListener('change', (e) => {
+            if (e.target.classList.contains('time-input')) {
+                const id = parseFloat(e.target.dataset.attendanceId);
+                const record = attendanceRecords.find(r => r.id === id);
+                if (record) {
+                    const type = e.target.classList.contains('clock-in-time') ? 'clock_in' : 'clock_out';
+                    record[type] = e.target.value;
+                    validateForm();
+                }
+            }
+        });
+
+        tg.MainButton.onClick(() => {
+            const formData = collectFormData();
+            tg.sendData(JSON.stringify(formData));
+        });
+
+        // Initialize the form when the script loads
+        initializeForm();
     </script>
 </body>
 </html>
-
