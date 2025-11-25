@@ -171,67 +171,23 @@
     </style>
 </head>
 <body>
-    <h1>📅 Úprava docházky</h1>
-    <p class="subtitle">Upravte záznamy příchodu, odchodu a přestávek</p>
-
-    <div class="section">
-        <div class="section-title">📆 Datum</div>
-        <div class="form-group">
-            <label>Vyberte datum</label>
-            <input type="date" class="date-input" id="datePicker">
-        </div>
+    <div style="padding: 20px; text-align: center;">
+        <h1>Attendance Form</h1>
+        <p>This is a simplified test page.</p>
+        <button id="closeButton" style="padding: 10px 20px; font-size: 16px; margin-top: 20px;">Close Form</button>
     </div>
 
-    <div class="section">
-        <div class="section-title">⏰ Záznamy docházky</div>
-        <p class="info-text">Přidejte záznamy příchodu a odchodu. K každému záznamu můžete přidat přestávky.</p>
-        <div id="attendanceList"></div>
-        <button type="button" class="add-btn" id="addAttendanceBtn">+ Přidat záznam</button>
-    </div>
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        // Hide the Telegram MainButton as we have our own close button
+        tg.MainButton.hide();
 
-        <script>
-
-            let tg = window.Telegram.WebApp;
-
-            tg.expand();
-
-            
-
-            // Configure the Main Button
-
-            tg.MainButton.setText("Send Test Data");
-
-            tg.MainButton.show();
-
-            tg.MainButton.enable();
-
-    
-
-            // Set the click handler for the Main Button
-
-            tg.MainButton.onClick(() => {
-
-                // Hardcoded test data
-
-                const testData = {
-
-                    test_id: "attendance_page_test",
-
-                    timestamp: new Date().toISOString(),
-
-                    message: "This is a test from the simplified attendance page."
-
-                };
-
-                
-
-                // Send the data to the bot
-
-                tg.sendData(JSON.stringify(testData));
-
-            });
-
-        </script>
+        document.getElementById('closeButton').addEventListener('click', () => {
+            tg.close();
+        });
+    </script>
 </body>
 </html>
 
