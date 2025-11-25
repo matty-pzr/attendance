@@ -56,15 +56,11 @@
         <button type="button" class="add-btn" id="addAttendanceBtn">+ Přidat záznam</button>
     </div>
 
-    <div class="section">
-        <button type="button" class="add-btn" id="saveChangesBtn">Uložit docházku</button>
-    </div>
-
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        // The MainButton is no longer used, so we hide it.
-        tg.MainButton.hide();
+        tg.MainButton.setText("Uložit docházku");
+        tg.MainButton.show();
 
         let attendanceRecords = [];
         let selectedDate = new Date().toISOString().split('T')[0];
@@ -157,7 +153,7 @@
             }
         });
 
-        document.getElementById('saveChangesBtn').addEventListener('click', () => {
+        tg.MainButton.onClick(() => {
             const formData = collectFormData();
             tg.sendData(JSON.stringify(formData));
         });
