@@ -189,321 +189,49 @@
         <button type="button" class="add-btn" id="addAttendanceBtn">+ Přidat záznam</button>
     </div>
 
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.MainButton.setText("Uložit docházku");
-        tg.MainButton.show();
+        <script>
 
-        let attendanceRecords = [];
-        let selectedDate = new Date().toISOString().split('T')[0];
+            let tg = window.Telegram.WebApp;
 
-        // Initialize date picker
-        document.getElementById('datePicker').value = selectedDate;
-        document.getElementById('datePicker').addEventListener('change', (e) => {
-            selectedDate = e.target.value;
-            loadAttendanceForDate(selectedDate);
-        });
+            tg.expand();
 
-        function initializeForm() {
-            // Try to get data from start_param (URL parameter or initData)
-            let dataToLoad = null;
             
-            // Check URL parameters first
-            const urlParams = new URLSearchParams(window.location.search);
-            const startParam = urlParams.get('start_param');
-            
-            if (startParam) {
-                try {
-                    dataToLoad = JSON.parse(decodeURIComponent(startParam));
-                } catch (e) {
-                    console.log('Failed to parse start_param from URL');
-                }
-            }
-            
-            // Fallback to initDataUnsafe
-            if (!dataToLoad) {
-                const initDataUnsafe = tg.initDataUnsafe;
-                if (initDataUnsafe && initDataUnsafe.start_param) {
-                    try {
-                        dataToLoad = JSON.parse(decodeURIComponent(initDataUnsafe.start_param));
-                    } catch (e) {
-                        console.log('Failed to parse start_param from initData');
-                    }
-                }
-            }
-            
-            // Load data if available
-            if (dataToLoad) {
-                if (dataToLoad.date) {
-                    selectedDate = dataToLoad.date;
-                    document.getElementById('datePicker').value = selectedDate;
-                }
-                if (dataToLoad.attendanceRecords && Array.isArray(dataToLoad.attendanceRecords)) {
-                    attendanceRecords = dataToLoad.attendanceRecords;
-                }
-            }
-            
-            renderAttendance();
-            validateForm();
-            
-            // Ensure button is enabled after initialization
-            setTimeout(() => {
-                validateForm();
-            }, 100);
-        }
 
-        function loadAttendanceForDate(date) {
-            // In a real implementation, this would fetch from the bot
-            // For now, we'll just re-render with current data
-            renderAttendance();
-            validateForm();
-        }
+            // Configure the Main Button
 
-        function addAttendanceRecord() {
-            attendanceRecords.push({
-                id: Date.now(),
-                clock_in: '09:00',
-                clock_out: '17:00',
-                breaks: []
-            });
-            renderAttendance();
-            validateForm();
-        }
+            tg.MainButton.setText("Send Test Data");
 
-        function removeAttendanceRecord(id) {
-            attendanceRecords = attendanceRecords.filter(r => r.id !== id);
-            renderAttendance();
-            validateForm();
-        }
+            tg.MainButton.show();
 
-        function addBreak(attendanceId) {
-            const record = attendanceRecords.find(r => r.id === attendanceId);
-            if (record) {
-                record.breaks.push({
-                    id: Date.now(),
-                    start_time: '12:00',
-                    end_time: '12:30'
-                });
-                renderAttendance();
-                validateForm();
-            }
-        }
+            tg.MainButton.enable();
 
-        function removeBreak(attendanceId, breakId) {
-            const record = attendanceRecords.find(r => r.id === attendanceId);
-            if (record) {
-                record.breaks = record.breaks.filter(b => b.id !== breakId);
-                renderAttendance();
-                validateForm();
-            }
-        }
+    
 
-        function renderAttendance() {
-            const container = document.getElementById('attendanceList');
-            if (attendanceRecords.length === 0) {
-                container.innerHTML = '<div class="empty-state">Žádné záznamy docházky</div>';
-                return;
-            }
+            // Set the click handler for the Main Button
 
-            container.innerHTML = attendanceRecords.map((record, index) => `
-                <div class="attendance-item" data-attendance-id="${record.id}">
-                    <div class="attendance-item-header">
-                        <span class="attendance-item-title">Záznam ${index + 1}</span>
-                        <button type="button" class="remove-btn" onclick="removeAttendanceRecord(${record.id})">Odebrat</button>
-                    </div>
-                    <div class="time-row">
-                        <div class="form-group">
-                            <label>Příchod</label>
-                            <input type="time" class="time-input clock-in-time" value="${record.clock_in}" data-attendance-id="${record.id}">
-                        </div>
-                        <div class="form-group">
-                            <label>Odchod</label>
-                            <input type="time" class="time-input clock-out-time" value="${record.clock_out}" data-attendance-id="${record.id}">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Přestávky</label>
-                        <div id="breaks-${record.id}">
-                            ${record.breaks.map((breakItem, breakIndex) => `
-                                <div class="break-item">
-                                    <div class="break-item-header">
-                                        <span class="break-item-title">Přestávka ${breakIndex + 1}</span>
-                                        <button type="button" class="break-remove-btn" onclick="removeBreak(${record.id}, ${breakItem.id})">Odebrat</button>
-                                    </div>
-                                    <div class="time-row">
-                                        <div class="form-group">
-                                            <label>Začátek</label>
-                                            <input type="time" class="time-input break-start-time" value="${breakItem.start_time}" data-attendance-id="${record.id}" data-break-id="${breakItem.id}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Konec</label>
-                                            <input type="time" class="time-input break-end-time" value="${breakItem.end_time}" data-attendance-id="${record.id}" data-break-id="${breakItem.id}">
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <button type="button" class="add-btn" onclick="addBreak(${record.id})" style="margin-top: 8px; font-size: 13px; padding: 8px;">+ Přidat přestávku</button>
-                    </div>
-                </div>
-            `).join('');
+            tg.MainButton.onClick(() => {
 
-            attachListeners();
-        }
+                // Hardcoded test data
 
-        function attachListeners() {
-            // Clock in/out time changes
-            document.querySelectorAll('.clock-in-time, .clock-out-time').forEach(input => {
-                input.addEventListener('change', (e) => {
-                    const attendanceId = parseInt(e.target.dataset.attendanceId);
-                    const record = attendanceRecords.find(r => r.id === attendanceId);
-                    if (record) {
-                        if (e.target.classList.contains('clock-in-time')) {
-                            record.clock_in = e.target.value;
-                        } else {
-                            record.clock_out = e.target.value;
-                        }
-                        validateForm();
-                    }
-                });
-            });
+                const testData = {
 
-            // Break time changes
-            document.querySelectorAll('.break-start-time, .break-end-time').forEach(input => {
-                input.addEventListener('change', (e) => {
-                    const attendanceId = parseInt(e.target.dataset.attendanceId);
-                    const breakId = parseInt(e.target.dataset.breakId);
-                    const record = attendanceRecords.find(r => r.id === attendanceId);
-                    if (record) {
-                        const breakItem = record.breaks.find(b => b.id === breakId);
-                        if (breakItem) {
-                            if (e.target.classList.contains('break-start-time')) {
-                                breakItem.start_time = e.target.value;
-                            } else {
-                                breakItem.end_time = e.target.value;
-                            }
-                            validateForm();
-                        }
-                    }
-                });
-            });
-        }
+                    test_id: "attendance_page_test",
 
-        function validateForm() {
-            // Allow saving even with no records (to clear them)
-            if (attendanceRecords.length === 0) {
-                tg.MainButton.enable();
-                return;
-            }
+                    timestamp: new Date().toISOString(),
 
-            let isValid = true;
+                    message: "This is a test from the simplified attendance page."
 
-            attendanceRecords.forEach(record => {
-                // Validate clock times
-                if (!record.clock_in || !record.clock_out) {
-                    isValid = false;
-                } else {
-                    // Check clock_out > clock_in
-                    const clockIn = record.clock_in.split(':');
-                    const clockOut = record.clock_out.split(':');
-                    const inMinutes = parseInt(clockIn[0]) * 60 + parseInt(clockIn[1]);
-                    const outMinutes = parseInt(clockOut[0]) * 60 + parseInt(clockOut[1]);
-                    
-                    if (outMinutes <= inMinutes) {
-                        isValid = false;
-                    }
-                }
+                };
 
-                // Validate breaks
-                if (record.breaks && record.breaks.length > 0) {
-                    record.breaks.forEach(breakItem => {
-                        if (!breakItem.start_time || !breakItem.end_time) {
-                            isValid = false;
-                        } else {
-                            const breakStart = breakItem.start_time.split(':');
-                            const breakEnd = breakItem.end_time.split(':');
-                            const startMinutes = parseInt(breakStart[0]) * 60 + parseInt(breakStart[1]);
-                            const endMinutes = parseInt(breakEnd[0]) * 60 + parseInt(breakEnd[1]);
-                            
-                            if (endMinutes <= startMinutes) {
-                                isValid = false;
-                            }
-
-                            // Check break is within attendance period
-                            if (record.clock_in && record.clock_out) {
-                                const clockIn = record.clock_in.split(':');
-                                const clockOut = record.clock_out.split(':');
-                                const inMinutes = parseInt(clockIn[0]) * 60 + parseInt(clockIn[1]);
-                                const outMinutes = parseInt(clockOut[0]) * 60 + parseInt(clockOut[1]);
-                                
-                                if (startMinutes < inMinutes || endMinutes > outMinutes) {
-                                    isValid = false;
-                                }
-                            }
-                        }
-                    });
-                }
-            });
-
-            if (isValid) {
-                tg.MainButton.enable();
-            } else {
-                tg.MainButton.disable();
-            }
-        }
-
-        function collectFormData() {
-            // Update all values from inputs
-            attendanceRecords.forEach(record => {
-                const clockInInput = document.querySelector(`.clock-in-time[data-attendance-id="${record.id}"]`);
-                const clockOutInput = document.querySelector(`.clock-out-time[data-attendance-id="${record.id}"]`);
                 
-                if (clockInInput) record.clock_in = clockInInput.value;
-                if (clockOutInput) record.clock_out = clockOutInput.value;
 
-                record.breaks.forEach(breakItem => {
-                    const startInput = document.querySelector(`.break-start-time[data-attendance-id="${record.id}"][data-break-id="${breakItem.id}"]`);
-                    const endInput = document.querySelector(`.break-end-time[data-attendance-id="${record.id}"][data-break-id="${breakItem.id}"]`);
-                    
-                    if (startInput) breakItem.start_time = startInput.value;
-                    if (endInput) breakItem.end_time = endInput.value;
-                });
+                // Send the data to the bot
+
+                tg.sendData(JSON.stringify(testData));
+
             });
 
-            return {
-                date: selectedDate,
-                attendanceRecords: attendanceRecords.map(r => {
-                    // Only include id if it's a database ID (not a temporary Date.now() ID)
-                    const record = {
-                        clock_in: r.clock_in,
-                        clock_out: r.clock_out,
-                        breaks: (r.breaks || []).map(b => ({
-                            start_time: b.start_time,
-                            end_time: b.end_time
-                        }))
-                    };
-                    
-                    // Only include id if it looks like a database ID (smaller number)
-                    // Temporary IDs from Date.now() are very large, database IDs are smaller
-                    if (r.id && r.id < 1000000000) {
-                        record.id = r.id;
-                    }
-                    
-                    return record;
-                })
-            };
-        }
-
-        document.getElementById('addAttendanceBtn').addEventListener('click', addAttendanceRecord);
-
-        tg.MainButton.onClick(() => {
-            const formData = collectFormData();
-            tg.sendData(JSON.stringify(formData));
-        });
-
-        initializeForm();
-    </script>
+        </script>
 </body>
 </html>
 
