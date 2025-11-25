@@ -56,11 +56,15 @@
         <button type="button" class="add-btn" id="addAttendanceBtn">+ Přidat záznam</button>
     </div>
 
+    <div class="section">
+        <button type="button" class="add-btn" id="saveChangesBtn">Uložit docházku</button>
+    </div>
+
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        tg.MainButton.setText("Uložit docházku");
-        tg.MainButton.show();
+        // The MainButton is no longer used, so we hide it.
+        tg.MainButton.hide();
 
         let attendanceRecords = [];
         let selectedDate = new Date().toISOString().split('T')[0];
@@ -84,7 +88,6 @@
                 }
             }
             renderAttendance();
-            validateForm();
         }
 
         function renderAttendance() {
@@ -112,21 +115,6 @@
                 </div>
             `).join('');
         }
-
-        function validateForm() {
-            let isValid = true;
-            for (const record of attendanceRecords) {
-                if (!record.clock_in || !record.clock_out || record.clock_out <= record.clock_in) {
-                    isValid = false;
-                    break;
-                }
-            }
-            if (isValid) {
-                tg.MainButton.enable();
-            } else {
-                tg.MainButton.disable();
-            }
-        }
         
         function collectFormData() {
             return {
@@ -148,7 +136,6 @@
         document.getElementById('addAttendanceBtn').addEventListener('click', () => {
             attendanceRecords.push({ id: Date.now() + Math.random(), clock_in: '09:00', clock_out: '17:00' });
             renderAttendance();
-            validateForm();
         });
 
         document.getElementById('attendanceList').addEventListener('click', (e) => {
@@ -156,7 +143,6 @@
                 const id = parseFloat(e.target.dataset.attendanceId);
                 attendanceRecords = attendanceRecords.filter(r => r.id !== id);
                 renderAttendance();
-                validateForm();
             }
         });
 
@@ -167,12 +153,11 @@
                 if (record) {
                     const type = e.target.classList.contains('clock-in-time') ? 'clock_in' : 'clock_out';
                     record[type] = e.target.value;
-                    validateForm();
                 }
             }
         });
 
-        tg.MainButton.onClick(() => {
+        document.getElementById('saveChangesBtn').addEventListener('click', () => {
             const formData = collectFormData();
             tg.sendData(JSON.stringify(formData));
         });
