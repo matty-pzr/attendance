@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Docházka</title>
+    <title>Nastavení</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -17,22 +17,685 @@
             background-color: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
             padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #999999);
+            margin-bottom: 24px;
+        }
+
+        .section {
+            background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .time-input, .duration-input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--tg-theme-hint-color, #cccccc);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .weekday-selector {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .weekday-btn {
+            flex: 1;
+            min-width: 38px;
+            padding: 10px 6px;
+            border: 1px solid var(--tg-theme-hint-color, #cccccc);
+            border-radius: 8px;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .weekday-btn.workday {
+            font-size: 15px;
+            padding: 12px 8px;
+            font-weight: 600;
+            border-width: 2px;
+        }
+
+        .weekday-btn.weekend {
+            font-size: 12px;
+            padding: 8px 6px;
+            opacity: 0.6;
+            font-weight: 400;
+        }
+
+        .weekday-btn.active {
+            background-color: var(--tg-theme-button-color, #0088cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border-color: var(--tg-theme-button-color, #0088cc);
+            opacity: 1;
+        }
+
+        .quick-select {
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .quick-select-btn {
+            padding: 6px 16px;
+            font-size: 13px;
+            background-color: var(--tg-theme-bg-color, rgba(255, 255, 255, 0.7));
+            border: 1px solid var(--tg-theme-hint-color, #cccccc);
+            border-radius: 6px;
+            color: var(--tg-theme-text-color, #000000);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-select-btn:hover {
+            background-color: var(--tg-theme-button-color, rgba(0, 136, 204, 0.1));
+        }
+
+        .reminder-item, .break-item {
+            padding: 12px;
+            background-color: var(--tg-theme-bg-color, rgba(255, 255, 255, 0.5));
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+        }
+
+        .reminder-item-header, .break-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .reminder-item-title, .break-item-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .remove-btn {
+            background-color: #ff3b30;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--tg-theme-button-color, #0088cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--tg-theme-bg-color, rgba(255, 255, 255, 0.5));
+            border: 2px solid var(--tg-theme-hint-color, #e0e0e0);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .radio-option.selected {
+            border-color: var(--tg-theme-button-color, #0088cc);
+            background-color: var(--tg-theme-button-color, rgba(0, 136, 204, 0.1));
+        }
+
+        .radio-option-content {
+            flex: 1;
+        }
+
+        .radio-option-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .radio-option-desc {
+            font-size: 13px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        .time-duration-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .time-duration-row > div {
+            flex: 1;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: var(--tg-theme-hint-color, #999999);
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: var(--tg-theme-hint-color, #999999);
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
+    <h1>⚙️ Nastavení</h1>
+    <p class="subtitle">Nastavte si připomínky, přestávky a styl komunikace</p>
+
+    <div class="section">
+        <div class="section-title">🔔 Připomínky příchodu</div>
+        <div id="clockInList"></div>
+        <button type="button" class="add-btn" id="addClockInBtn">+ Přidat připomínku</button>
+    </div>
+
+    <div class="section">
+        <div class="section-title">🔔 Připomínky odchodu</div>
+        <div id="clockOutList"></div>
+        <button type="button" class="add-btn" id="addClockOutBtn">+ Přidat připomínku</button>
+    </div>
+
+    <div class="section">
+        <div class="section-title">☕ Přestávky</div>
+        <p class="info-text">Přestávky budou automaticky odečteny z pracovní doby</p>
+        <div id="breaksList"></div>
+        <button type="button" class="add-btn" id="addBreakBtn">+ Přidat přestávku</button>
+    </div>
+
+    <div class="section">
+        <div class="section-title">💬 Styl komunikace</div>
+        <p class="info-text">Vyberte, jak chcete dostávat zprávy od bota</p>
+        <div class="radio-group">
+            <label class="radio-option" data-value="detailed">
+                <input type="radio" name="messageStyle" value="detailed" checked>
+                <div class="radio-option-content">
+                    <div class="radio-option-title">Podrobné zprávy</div>
+                    <div class="radio-option-desc">Obdržíte kompletní informace se všemi detaily</div>
+                </div>
+            </label>
+            <label class="radio-option" data-value="summarized">
+                <input type="radio" name="messageStyle" value="summarized">
+                <div class="radio-option-content">
+                    <div class="radio-option-title">Stručné zprávy</div>
+                    <div class="radio-option-desc">Dostanete krátká, výstižná oznámení</div>
+                </div>
+            </label>
+        </div>
+    </div>
+
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        tg.MainButton.setText("Close");
+        tg.MainButton.setText("Uložit nastavení");
         tg.MainButton.show();
-        tg.MainButton.enable();
+
+        let clockInReminders = [];
+        let clockOutReminders = [];
+        let breaks = [];
+
+        const daysCs = {mon: 'Po', tue: 'Út', wed: 'St', thu: 'Čt', fri: 'Pá', sat: 'So', sun: 'Ne'};
+        const workdays = ['mon', 'tue', 'wed', 'thu', 'fri'];
+        const weekendDays = ['sat', 'sun'];
+
+        function initializeForm() {
+
+            const initDataUnsafe = tg.initDataUnsafe;
+            if (initDataUnsafe && initDataUnsafe.start_param) {
+                try {
+                    const prefData = JSON.parse(decodeURIComponent(initDataUnsafe.start_param));
+                    console.log("Parsed prefData:", prefData);
+                    loadPreferences(prefData);
+                } catch (e) {
+                    console.log('No preferences to load', e);
+                }
+            }
+            renderAll();
+            validateForm();
+        }
+
+        function loadPreferences(data) {
+            if (data.clockInReminders && Array.isArray(data.clockInReminders)) {
+                clockInReminders = data.clockInReminders;
+            }
+            if (data.clockOutReminders && Array.isArray(data.clockOutReminders)) {
+                clockOutReminders = data.clockOutReminders;
+            }
+            if (data.breaks && Array.isArray(data.breaks)) {
+                breaks = data.breaks;
+            }
+            if (data.messageStyle) {
+                const radio = document.querySelector(`input[name="messageStyle"][value="${data.messageStyle}"]`);
+                if (radio) {
+                    radio.checked = true;
+                    updateRadioSelection();
+                }
+            }
+        }
+
+        function createWeekdaySelector(containerId, selectedDays = []) {
+            let html = '<div class="weekday-selector">';
+            Object.keys(daysCs).forEach(day => {
+                const isWorkday = workdays.includes(day);
+                const active = selectedDays.includes(day) ? 'active' : '';
+                const dayClass = isWorkday ? 'workday' : 'weekend';
+                html += `<button type="button" class="weekday-btn ${dayClass} ${active}" data-day="${day}">${daysCs[day]}</button>`;
+            });
+            html += '</div>';
+            html += '<div class="quick-select"><button type="button" class="quick-select-btn" data-select="workdays">Po-Pá</button></div>';
+            return html;
+        }
+
+        function addClockInReminder() {
+            clockInReminders.push({
+                id: Date.now(),
+                time: '09:00',
+                days: [...workdays]
+            });
+            renderClockInReminders();
+            validateForm();
+        }
+
+        function removeClockInReminder(id) {
+            clockInReminders = clockInReminders.filter(r => r.id !== id);
+            renderClockInReminders();
+            validateForm();
+        }
+
+        function renderClockInReminders() {
+            const container = document.getElementById('clockInList');
+            if (clockInReminders.length === 0) {
+                container.innerHTML = '<div class="empty-state">Žádné připomínky příchodu</div>';
+                return;
+            }
+
+            container.innerHTML = clockInReminders.map((reminder, index) => `
+                <div class="reminder-item" data-reminder-id="${reminder.id}">
+                    <div class="reminder-item-header">
+                        <span class="reminder-item-title">Připomínka ${index + 1}</span>
+                        <button type="button" class="remove-btn" onclick="removeClockInReminder(${reminder.id})">Odebrat</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Čas</label>
+                        <input type="time" class="time-input clock-in-time" value="${reminder.time}" data-reminder-id="${reminder.id}">
+                    </div>
+                    <div class="form-group">
+                        <label>Aktivní dny</label>
+                        ${createWeekdaySelector('clock-in-days-' + reminder.id, reminder.days)}
+                    </div>
+                </div>
+            `).join('');
+            attachClockInListeners();
+        }
+
+        function attachClockInListeners() {
+            document.querySelectorAll('.clock-in-time').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const id = parseInt(e.target.dataset.reminderId);
+                    const reminder = clockInReminders.find(r => r.id === id);
+                    if (reminder) reminder.time = e.target.value;
+                });
+            });
+
+            document.querySelectorAll('#clockInList .weekday-selector').forEach(container => {
+                const reminderId = parseInt(container.closest('.reminder-item').dataset.reminderId);
+                container.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('weekday-btn')) {
+                        e.target.classList.toggle('active');
+                        updateReminderDays(clockInReminders, reminderId, container);
+                        validateForm();
+                    }
+                });
+            });
+
+            document.querySelectorAll('#clockInList .quick-select-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const container = e.target.closest('.reminder-item');
+                    const reminderId = parseInt(container.dataset.reminderId);
+                    const selector = container.querySelector('.weekday-selector');
+                    selectWorkdays(selector);
+                    updateReminderDays(clockInReminders, reminderId, selector);
+                    validateForm();
+                });
+            });
+        }
+
+        function addClockOutReminder() {
+            clockOutReminders.push({
+                id: Date.now(),
+                time: '17:00',
+                days: [...workdays]
+            });
+            renderClockOutReminders();
+            validateForm();
+        }
+
+        function removeClockOutReminder(id) {
+            clockOutReminders = clockOutReminders.filter(r => r.id !== id);
+            renderClockOutReminders();
+            validateForm();
+        }
+
+        function renderClockOutReminders() {
+            const container = document.getElementById('clockOutList');
+            if (clockOutReminders.length === 0) {
+                container.innerHTML = '<div class="empty-state">Žádné připomínky odchodu</div>';
+                return;
+            }
+
+            container.innerHTML = clockOutReminders.map((reminder, index) => `
+                <div class="reminder-item" data-reminder-id="${reminder.id}">
+                    <div class="reminder-item-header">
+                        <span class="reminder-item-title">Připomínka ${index + 1}</span>
+                        <button type="button" class="remove-btn" onclick="removeClockOutReminder(${reminder.id})">Odebrat</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Čas</label>
+                        <input type="time" class="time-input clock-out-time" value="${reminder.time}" data-reminder-id="${reminder.id}">
+                    </div>
+                    <div class="form-group">
+                        <label>Aktivní dny</label>
+                        ${createWeekdaySelector('clock-out-days-' + reminder.id, reminder.days)}
+                    </div>
+                </div>
+            `).join('');
+            attachClockOutListeners();
+        }
+
+        function attachClockOutListeners() {
+            document.querySelectorAll('.clock-out-time').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const id = parseInt(e.target.dataset.reminderId);
+                    const reminder = clockOutReminders.find(r => r.id === id);
+                    if (reminder) reminder.time = e.target.value;
+                });
+            });
+
+            document.querySelectorAll('#clockOutList .weekday-selector').forEach(container => {
+                const reminderId = parseInt(container.closest('.reminder-item').dataset.reminderId);
+                container.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('weekday-btn')) {
+                        e.target.classList.toggle('active');
+                        updateReminderDays(clockOutReminders, reminderId, container);
+                        validateForm();
+                    }
+                });
+            });
+
+            document.querySelectorAll('#clockOutList .quick-select-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const container = e.target.closest('.reminder-item');
+                    const reminderId = parseInt(container.dataset.reminderId);
+                    const selector = container.querySelector('.weekday-selector');
+                    selectWorkdays(selector);
+                    updateReminderDays(clockOutReminders, reminderId, selector);
+                    validateForm();
+                });
+            });
+        }
+
+        function updateReminderDays(reminderArray, reminderId, container) {
+            const reminder = reminderArray.find(r => r.id === reminderId);
+            if (reminder) {
+                reminder.days = Array.from(container.querySelectorAll('.weekday-btn.active')).map(btn => btn.dataset.day);
+            }
+        }
+
+        function selectWorkdays(container) {
+            container.querySelectorAll('.weekday-btn').forEach(btn => {
+                if (workdays.includes(btn.dataset.day)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        function addBreak() {
+            breaks.push({
+                id: Date.now(),
+                startTime: '12:00',
+                duration: 30,
+                days: [...workdays]
+            });
+            renderBreaks();
+            validateForm();
+        }
+
+        function removeBreak(id) {
+            breaks = breaks.filter(b => b.id !== id);
+            renderBreaks();
+            validateForm();
+        }
+
+        function renderBreaks() {
+            const container = document.getElementById('breaksList');
+            if (breaks.length === 0) {
+                container.innerHTML = '<div class="empty-state">Žádné přestávky</div>';
+                return;
+            }
+
+            container.innerHTML = breaks.map((breakItem, index) => `
+                <div class="break-item" data-break-id="${breakItem.id}">
+                    <div class="break-item-header">
+                        <span class="break-item-title">Přestávka ${index + 1}</span>
+                        <button type="button" class="remove-btn" onclick="removeBreak(${breakItem.id})">Odebrat</button>
+                    </div>
+                    <div class="time-duration-row">
+                        <div class="form-group">
+                            <label>Čas zahájení</label>
+                            <input type="time" class="time-input break-start-time" value="${breakItem.startTime}" data-break-id="${breakItem.id}">
+                        </div>
+                        <div class="form-group">
+                            <label>Trvání (min)</label>
+                            <input type="number" class="duration-input break-duration" value="${breakItem.duration}" min="5" max="240" step="5" data-break-id="${breakItem.id}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Aktivní dny</label>
+                        ${createWeekdaySelector('break-days-' + breakItem.id, breakItem.days)}
+                    </div>
+                </div>
+            `).join('');
+            attachBreakListeners();
+        }
+
+        function attachBreakListeners() {
+            document.querySelectorAll('.break-start-time').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const id = parseInt(e.target.dataset.breakId);
+                    const breakItem = breaks.find(b => b.id === id);
+                    if (breakItem) breakItem.startTime = e.target.value;
+                });
+            });
+
+            document.querySelectorAll('.break-duration').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const id = parseInt(e.target.dataset.breakId);
+                    const breakItem = breaks.find(b => b.id === id);
+                    if (breakItem) breakItem.duration = parseInt(e.target.value);
+                });
+            });
+
+            document.querySelectorAll('#breaksList .weekday-selector').forEach(container => {
+                const breakId = parseInt(container.closest('.break-item').dataset.breakId);
+                container.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('weekday-btn')) {
+                        e.target.classList.toggle('active');
+                        const breakItem = breaks.find(b => b.id === breakId);
+                        if (breakItem) {
+                            breakItem.days = Array.from(container.querySelectorAll('.weekday-btn.active')).map(btn => btn.dataset.day);
+                        }
+                        validateForm();
+                    }
+                });
+            });
+
+            document.querySelectorAll('#breaksList .quick-select-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const container = e.target.closest('.break-item');
+                    const breakId = parseInt(container.dataset.breakId);
+                    const selector = container.querySelector('.weekday-selector');
+                    selectWorkdays(selector);
+                    const breakItem = breaks.find(b => b.id === breakId);
+                    if (breakItem) {
+                        breakItem.days = [...workdays];
+                    }
+                    validateForm();
+                });
+            });
+        }
+
+        function renderAll() {
+            renderClockInReminders();
+            renderClockOutReminders();
+            renderBreaks();
+        }
+
+        document.getElementById('addClockInBtn').addEventListener('click', addClockInReminder);
+        document.getElementById('addClockOutBtn').addEventListener('click', addClockOutReminder);
+        document.getElementById('addBreakBtn').addEventListener('click', addBreak);
+
+        document.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const radio = option.querySelector('input[type="radio"]');
+                radio.checked = true;
+                updateRadioSelection();
+            });
+        });
+
+        function updateRadioSelection() {
+            document.querySelectorAll('.radio-option').forEach(opt => {
+                const radio = opt.querySelector('input[type="radio"]');
+                if (radio.checked) {
+                    opt.classList.add('selected');
+                } else {
+                    opt.classList.remove('selected');
+                }
+            });
+        }
+
+        function validateForm() {
+            let isValid = true;
+
+            clockInReminders.forEach(reminder => {
+                if (reminder.days.length === 0) isValid = false;
+            });
+
+            clockOutReminders.forEach(reminder => {
+                if (reminder.days.length === 0) isValid = false;
+            });
+
+            breaks.forEach(breakItem => {
+                if (breakItem.days.length === 0) isValid = false;
+            });
+
+            if (isValid) {
+                tg.MainButton.enable();
+            } else {
+                tg.MainButton.disable();
+            }
+        }
+
+        function collectFormData() {
+            clockInReminders.forEach(reminder => {
+                const timeInput = document.querySelector(`.clock-in-time[data-reminder-id="${reminder.id}"]`);
+                if (timeInput) reminder.time = timeInput.value;
+            });
+
+            clockOutReminders.forEach(reminder => {
+                const timeInput = document.querySelector(`.clock-out-time[data-reminder-id="${reminder.id}"]`);
+                if (timeInput) reminder.time = timeInput.value;
+            });
+
+            breaks.forEach(breakItem => {
+                const startInput = document.querySelector(`.break-start-time[data-break-id="${breakItem.id}"]`);
+                const durationInput = document.querySelector(`.break-duration[data-break-id="${breakItem.id}"]`);
+                if (startInput) breakItem.startTime = startInput.value;
+                if (durationInput) breakItem.duration = parseInt(durationInput.value);
+            });
+
+            return {
+                clockInReminders: clockInReminders.map(r => ({time: r.time, days: r.days})),
+                clockOutReminders: clockOutReminders.map(r => ({time: r.time, days: r.days})),
+                breaks: breaks.map(b => ({startTime: b.startTime, duration: b.duration, days: b.days})),
+                messageStyle: document.querySelector('input[name="messageStyle"]:checked').value
+            };
+        }
 
         tg.MainButton.onClick(() => {
-            // Send simple message to backend
-            tg.sendData(JSON.stringify({ message: "Attendance form button clicked" }));
+            const formData = collectFormData();
+            tg.sendData(JSON.stringify(formData));
         });
+
+        initializeForm();
+        updateRadioSelection();
     </script>
 </body>
 </html>
-
