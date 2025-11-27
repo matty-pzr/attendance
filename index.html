@@ -262,10 +262,9 @@
                 }
             }
 
-            // Request today's data (bot will send it to chat)
-            // Note: Web Apps can't directly receive bot messages,
-            // but user can see the data in chat if needed
-            requestAttendanceData(currentDate);
+            // Don't automatically request data - let user add records manually
+            // User can manually request data if needed, or just add new records
+            renderRecords();
 
             // Listen for date changes
             dateInput.addEventListener('change', function(e) {
@@ -273,10 +272,10 @@
                 if (selectedDate) {
                     currentDate = selectedDate;
                     // Clear current records when date changes
+                    // User can manually add records for the new date
                     attendanceRecords = [];
                     renderRecords();
-                    // Request new date's data
-                    requestAttendanceData(selectedDate);
+                    validateForm();
                 }
             });
         }
