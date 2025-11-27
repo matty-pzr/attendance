@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Docházka</title>
+    <title>Editor docházky</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -17,23 +17,554 @@
             background-color: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
             padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .date-picker {
+            margin-bottom: 24px;
+        }
+
+        .date-picker label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        .date-picker input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid var(--tg-theme-hint-color, #cccccc);
+            border-radius: 8px;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .attendance-records {
+            margin-bottom: 24px;
+        }
+
+        .record-card {
+            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .record-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .remove-record-btn {
+            background-color: var(--tg-theme-destructive-text-color, #ff3b30);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .time-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .time-group label {
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        .time-group input {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid var(--tg-theme-hint-color, #cccccc);
+            border-radius: 6px;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .breaks-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--tg-theme-hint-color, #cccccc);
+        }
+
+        .breaks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .breaks-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .add-break-btn {
+            background-color: var(--tg-theme-button-color, #0088cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .break-item {
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .break-time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .remove-break-btn {
+            background-color: var(--tg-theme-destructive-text-color, #ff3b30);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .add-record-btn {
+            width: 100%;
+            background-color: var(--tg-theme-button-color, #0088cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 24px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        .error {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--tg-theme-destructive-text-color, #ff3b30);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>📅 Editor docházky</h1>
+    </div>
+
+    <div class="date-picker">
+        <label for="date-input">Datum</label>
+        <input type="date" id="date-input" />
+    </div>
+
+    <div id="error-container"></div>
+    <div id="loading-container" class="loading" style="display: none;">Načítání...</div>
+
+    <div id="attendance-records-container">
+        <div class="empty-state">
+            <p>Žádné záznamy docházky</p>
+            <p>Klikněte na "Přidat záznam" pro vytvoření nového záznamu</p>
+        </div>
+    </div>
+
+    <button class="add-record-btn" onclick="addAttendanceRecord()">+ Přidat záznam</button>
+
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        tg.MainButton.setText("Close");
+        tg.MainButton.setText("Uložit");
         tg.MainButton.show();
         tg.MainButton.enable();
 
-        tg.MainButton.onClick(() => {
-            // Send simple message to backend
-            tg.sendData(JSON.stringify({ message: "Attendance form button clicked" }));
-            // Close the mini app
+        let attendanceRecords = [];
+        let currentDate = new Date().toISOString().split('T')[0];
+        let recordIdCounter = 1;
+        let breakIdCounter = 1;
+
+        // Initialize
+        function initializeApp() {
+            const dateInput = document.getElementById('date-input');
+            dateInput.value = currentDate;
+            dateInput.max = new Date().toISOString().split('T')[0]; // Can't select future dates
+
+            // Load today's data from start_param if available
+            const initDataUnsafe = tg.initDataUnsafe;
+            if (initDataUnsafe && initDataUnsafe.start_param) {
+                try {
+                    const data = JSON.parse(decodeURIComponent(initDataUnsafe.start_param));
+                    if (data.attendanceRecords && Array.isArray(data.attendanceRecords)) {
+                        loadAttendanceData(data.attendanceRecords);
+                        return;
+                    }
+                } catch (e) {
+                    console.log('No initial data to load', e);
+                }
+            }
+
+            // Request today's data (bot will send it to chat)
+            // Note: Web Apps can't directly receive bot messages,
+            // but user can see the data in chat if needed
+            requestAttendanceData(currentDate);
+
+            // Listen for date changes
+            dateInput.addEventListener('change', function(e) {
+                const selectedDate = e.target.value;
+                if (selectedDate) {
+                    currentDate = selectedDate;
+                    // Clear current records when date changes
+                    attendanceRecords = [];
+                    renderRecords();
+                    // Request new date's data
+                    requestAttendanceData(selectedDate);
+                }
+            });
+        }
+
+        // Request attendance data for a date
+        function requestAttendanceData(date) {
+            showLoading(true);
+            hideError();
+
+            const requestData = {
+                action: 'getAttendance',
+                date: date
+            };
+
+            tg.sendData(JSON.stringify(requestData));
+            
+            // Note: The bot will send the data back via message in the chat
+            // Telegram Web Apps cannot directly receive bot messages,
+            // so the data will appear in the chat for user reference
+            // For now, we'll show empty state and user can manually add records
+            // or check the chat for existing data
+            setTimeout(() => {
+                showLoading(false);
+                // Show empty state - user can add records manually
+                // If data exists in chat, they can reference it
+                if (attendanceRecords.length === 0) {
+                    renderRecords();
+                }
+            }, 500);
+        }
+
+        // Load attendance data
+        function loadAttendanceData(records) {
+            attendanceRecords = records.map(record => ({
+                id: record.id || null,
+                clock_in: record.clock_in || '',
+                clock_out: record.clock_out || '',
+                breaks: (record.breaks || []).map(breakItem => ({
+                    id: breakItem.id || null,
+                    start_time: breakItem.start_time || '',
+                    end_time: breakItem.end_time || ''
+                }))
+            }));
+
+            // Update counters
+            if (attendanceRecords.length > 0) {
+                const maxId = Math.max(...attendanceRecords.map(r => r.id || 0));
+                recordIdCounter = maxId + 1;
+            }
+
+            renderRecords();
+            validateForm();
+        }
+
+        // Add new attendance record
+        function addAttendanceRecord() {
+            attendanceRecords.push({
+                id: null,
+                clock_in: '',
+                clock_out: '',
+                breaks: []
+            });
+            renderRecords();
+            validateForm();
+        }
+
+        // Remove attendance record
+        function removeAttendanceRecord(index) {
+            attendanceRecords.splice(index, 1);
+            renderRecords();
+            validateForm();
+        }
+
+        // Add break to record
+        function addBreak(recordIndex) {
+            if (!attendanceRecords[recordIndex].breaks) {
+                attendanceRecords[recordIndex].breaks = [];
+            }
+            attendanceRecords[recordIndex].breaks.push({
+                id: null,
+                start_time: '',
+                end_time: ''
+            });
+            renderRecords();
+            validateForm();
+        }
+
+        // Remove break from record
+        function removeBreak(recordIndex, breakIndex) {
+            attendanceRecords[recordIndex].breaks.splice(breakIndex, 1);
+            renderRecords();
+            validateForm();
+        }
+
+        // Render all records
+        function renderRecords() {
+            const container = document.getElementById('attendance-records-container');
+            
+            if (attendanceRecords.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>Žádné záznamy docházky</p>
+                        <p>Klikněte na "Přidat záznam" pro vytvoření nového záznamu</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = attendanceRecords.map((record, recordIndex) => `
+                <div class="record-card">
+                    <div class="record-header">
+                        <div class="record-title">Záznam ${recordIndex + 1}</div>
+                        <button class="remove-record-btn" onclick="removeAttendanceRecord(${recordIndex})">Odstranit</button>
+                    </div>
+                    <div class="time-inputs">
+                        <div class="time-group">
+                            <label>Příchod (HH:MM)</label>
+                            <input 
+                                type="time" 
+                                value="${record.clock_in}" 
+                                onchange="updateRecordField(${recordIndex}, 'clock_in', this.value)"
+                                required
+                            />
+                        </div>
+                        <div class="time-group">
+                            <label>Odchod (HH:MM)</label>
+                            <input 
+                                type="time" 
+                                value="${record.clock_out}" 
+                                onchange="updateRecordField(${recordIndex}, 'clock_out', this.value)"
+                            />
+                        </div>
+                    </div>
+                    <div class="breaks-section">
+                        <div class="breaks-header">
+                            <div class="breaks-title">Přestávky</div>
+                            <button class="add-break-btn" onclick="addBreak(${recordIndex})">+ Přidat přestávku</button>
+                        </div>
+                        ${record.breaks.map((breakItem, breakIndex) => `
+                            <div class="break-item">
+                                <div class="break-time-inputs">
+                                    <div class="time-group">
+                                        <label>Začátek</label>
+                                        <input 
+                                            type="time" 
+                                            value="${breakItem.start_time}" 
+                                            onchange="updateBreakField(${recordIndex}, ${breakIndex}, 'start_time', this.value)"
+                                        />
+                                    </div>
+                                    <div class="time-group">
+                                        <label>Konec</label>
+                                        <input 
+                                            type="time" 
+                                            value="${breakItem.end_time}" 
+                                            onchange="updateBreakField(${recordIndex}, ${breakIndex}, 'end_time', this.value)"
+                                        />
+                                    </div>
+                                    <button class="remove-break-btn" onclick="removeBreak(${recordIndex}, ${breakIndex})">Odstranit</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                        ${record.breaks.length === 0 ? '<p style="font-size: 12px; color: var(--tg-theme-hint-color, #999999);">Žádné přestávky</p>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update record field
+        function updateRecordField(recordIndex, field, value) {
+            attendanceRecords[recordIndex][field] = value;
+            validateForm();
+        }
+
+        // Update break field
+        function updateBreakField(recordIndex, breakIndex, field, value) {
+            attendanceRecords[recordIndex].breaks[breakIndex][field] = value;
+            validateForm();
+        }
+
+        // Validate form
+        function validateForm() {
+            let isValid = true;
+            const errors = [];
+
+            attendanceRecords.forEach((record, recordIndex) => {
+                if (!record.clock_in) {
+                    isValid = false;
+                    errors.push(`Záznam ${recordIndex + 1}: Příchod je povinný`);
+                }
+
+                if (record.clock_out && record.clock_in) {
+                    if (record.clock_out <= record.clock_in) {
+                        isValid = false;
+                        errors.push(`Záznam ${recordIndex + 1}: Odchod musí být po příchodu`);
+                    }
+                }
+
+                record.breaks.forEach((breakItem, breakIndex) => {
+                    if (breakItem.start_time && breakItem.end_time) {
+                        if (breakItem.end_time <= breakItem.start_time) {
+                            isValid = false;
+                            errors.push(`Záznam ${recordIndex + 1}, Přestávka ${breakIndex + 1}: Konec musí být po začátku`);
+                        }
+
+                        // Check if break is within work period
+                        if (record.clock_in && record.clock_out) {
+                            if (breakItem.start_time < record.clock_in || breakItem.end_time > record.clock_out) {
+                                isValid = false;
+                                errors.push(`Záznam ${recordIndex + 1}, Přestávka ${breakIndex + 1}: Přestávka musí být v rámci pracovní doby`);
+                            }
+                        }
+                    }
+                });
+            });
+
+            if (errors.length > 0) {
+                showError(errors.join('\n'));
+            } else {
+                hideError();
+            }
+
+            tg.MainButton.setParams({
+                text: "Uložit",
+                is_active: isValid && attendanceRecords.length > 0
+            });
+
+            return isValid;
+        }
+
+        // Show error
+        function showError(message) {
+            const container = document.getElementById('error-container');
+            container.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        // Hide error
+        function hideError() {
+            const container = document.getElementById('error-container');
+            container.innerHTML = '';
+        }
+
+        // Show loading
+        function showLoading(show) {
+            const container = document.getElementById('loading-container');
+            container.style.display = show ? 'block' : 'none';
+        }
+
+        // Save data
+        function saveData() {
+            if (!validateForm()) {
+                tg.showAlert('Prosím opravte chyby ve formuláři');
+                return;
+            }
+
+            if (attendanceRecords.length === 0) {
+                tg.showAlert('Přidejte alespoň jeden záznam');
+                return;
+            }
+
+            const saveData = {
+                type: 'attendance',
+                date: currentDate,
+                attendanceRecords: attendanceRecords.map(record => ({
+                    id: record.id || undefined,
+                    clock_in: record.clock_in,
+                    clock_out: record.clock_out || undefined,
+                    breaks: record.breaks.map(breakItem => ({
+                        id: breakItem.id || undefined,
+                        start_time: breakItem.start_time,
+                        end_time: breakItem.end_time
+                    })).filter(b => b.start_time && b.end_time)
+                })).filter(r => r.clock_in) // Only include records with clock_in
+            };
+
+            tg.MainButton.showProgress();
+            tg.sendData(JSON.stringify(saveData));
+            
+            // Close after a short delay
+            setTimeout(() => {
             tg.close();
-        });
+            }, 500);
+        }
+
+        // Set up save button
+        tg.MainButton.onClick(saveData);
+
+        // Initialize app
+        initializeApp();
     </script>
 </body>
 </html>
