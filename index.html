@@ -269,13 +269,10 @@
             // Listen for date changes
             dateInput.addEventListener('change', function(e) {
                 const selectedDate = e.target.value;
-                if (selectedDate) {
+                if (selectedDate && selectedDate !== currentDate) {
                     currentDate = selectedDate;
-                    // Clear current records when date changes
-                    // User can manually add records for the new date
-                    attendanceRecords = [];
-                    renderRecords();
-                    validateForm();
+                    // Request data for the new date
+                    requestAttendanceData(selectedDate);
                 }
             });
         }
@@ -290,21 +287,14 @@
                 date: date
             };
 
+            // Send request to bot
             tg.sendData(JSON.stringify(requestData));
             
-            // Note: The bot will send the data back via message in the chat
-            // Telegram Web Apps cannot directly receive bot messages,
-            // so the data will appear in the chat for user reference
-            // For now, we'll show empty state and user can manually add records
-            // or check the chat for existing data
+            // Close the app - bot will send a message with button to reopen with data
+            // This allows the bot to pass data via start_param in the Web App button
             setTimeout(() => {
-                showLoading(false);
-                // Show empty state - user can add records manually
-                // If data exists in chat, they can reference it
-                if (attendanceRecords.length === 0) {
-                    renderRecords();
-                }
-            }, 500);
+                tg.close();
+            }, 300);
         }
 
         // Load attendance data
