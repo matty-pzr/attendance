@@ -206,6 +206,16 @@
             margin-bottom: 16px;
             font-size: 14px;
         }
+        
+        .success-message {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            border-left: 4px solid #34c759;
+        }
     </style>
 </head>
 <body>
@@ -218,7 +228,7 @@
         <input type="date" id="date-input" />
     </div>
 
-    <div id="error-container"></div>
+    <div id="status-container"></div>
     <div id="loading-container" class="loading" style="display: none;">Načítání...</div>
 
     <div id="attendance-records-container">
@@ -231,6 +241,11 @@
     <button class="add-record-btn" onclick="addAttendanceRecord()">+ Přidat záznam</button>
 
     <script>
+        // CONFIGURATION
+        // REPLACE WITH YOUR ACTUAL API URL (e.g., https://your-app.herokuapp.com)
+        // For local development with ngrok: https://xxxx-xx-xx-xx-xx.ngrok-free.app
+        const API_BASE_URL = 'https://sedentary-rae-alterably.ngrok-free.dev';
+
         let tg = window.Telegram.WebApp;
         tg.expand();
         tg.MainButton.setText("Uložit");
@@ -239,62 +254,58 @@
 
         let attendanceRecords = [];
         let currentDate = new Date().toISOString().split('T')[0];
-        let recordIdCounter = 1;
-        let breakIdCounter = 1;
-
+        
         // Initialize
         function initializeApp() {
             const dateInput = document.getElementById('date-input');
             dateInput.value = currentDate;
             dateInput.max = new Date().toISOString().split('T')[0]; // Can't select future dates
 
-            // Load today's data from start_param if available
-            const initDataUnsafe = tg.initDataUnsafe;
-            if (initDataUnsafe && initDataUnsafe.start_param) {
-                try {
-                    const data = JSON.parse(decodeURIComponent(initDataUnsafe.start_param));
-                    if (data.attendanceRecords && Array.isArray(data.attendanceRecords)) {
-                        loadAttendanceData(data.attendanceRecords);
-                        return;
-                    }
-                } catch (e) {
-                    console.log('No initial data to load', e);
-                }
-            }
-
-            // Don't automatically request data - let user add records manually
-            // User can manually request data if needed, or just add new records
-            renderRecords();
+            // Fetch data for today immediately
+            fetchAttendance(currentDate);
 
             // Listen for date changes
             dateInput.addEventListener('change', function(e) {
                 const selectedDate = e.target.value;
                 if (selectedDate && selectedDate !== currentDate) {
                     currentDate = selectedDate;
-                    // Request data for the new date
-                    requestAttendanceData(selectedDate);
+                    fetchAttendance(selectedDate);
                 }
             });
         }
 
-        // Request attendance data for a date
-        function requestAttendanceData(date) {
+        // Fetch attendance data from API
+        async function fetchAttendance(date) {
             showLoading(true);
-            hideError();
-
-            const requestData = {
-                action: 'getAttendance',
-                date: date
-            };
-
-            // Send request to bot
-            tg.sendData(JSON.stringify(requestData));
+            hideStatus();
             
-            // Close the app - bot will send a message with button to reopen with data
-            // This allows the bot to pass data via start_param in the Web App button
-            setTimeout(() => {
-                tg.close();
-            }, 300);
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/attendance/${date}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': tg.initData
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.attendanceRecords) {
+                    loadAttendanceData(data.attendanceRecords);
+                } else {
+                    attendanceRecords = [];
+                    renderRecords();
+                }
+                
+            } catch (error) {
+                console.error('Error fetching attendance:', error);
+                showError(`Nepodařilo se načíst data: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
         }
 
         // Load attendance data
@@ -309,12 +320,6 @@
                     end_time: breakItem.end_time || ''
                 }))
             }));
-
-            // Update counters
-            if (attendanceRecords.length > 0) {
-                const maxId = Math.max(...attendanceRecords.map(r => r.id || 0));
-                recordIdCounter = maxId + 1;
-            }
 
             renderRecords();
             validateForm();
@@ -484,7 +489,7 @@
             if (errors.length > 0) {
                 showError(errors.join('\n'));
             } else {
-                hideError();
+                hideStatus();
             }
 
             tg.MainButton.setParams({
@@ -497,13 +502,19 @@
 
         // Show error
         function showError(message) {
-            const container = document.getElementById('error-container');
+            const container = document.getElementById('status-container');
             container.innerHTML = `<div class="error">${message}</div>`;
         }
 
-        // Hide error
-        function hideError() {
-            const container = document.getElementById('error-container');
+        // Show success
+        function showSuccess(message) {
+            const container = document.getElementById('status-container');
+            container.innerHTML = `<div class="success-message">${message}</div>`;
+        }
+
+        // Hide status
+        function hideStatus() {
+            const container = document.getElementById('status-container');
             container.innerHTML = '';
         }
 
@@ -511,10 +522,16 @@
         function showLoading(show) {
             const container = document.getElementById('loading-container');
             container.style.display = show ? 'block' : 'none';
+            
+            if (show) {
+                tg.MainButton.showProgress();
+            } else {
+                tg.MainButton.hideProgress();
+            }
         }
 
-        // Save data
-        function saveData() {
+        // Save data via API
+        async function saveData() {
             if (!validateForm()) {
                 tg.showAlert('Prosím opravte chyby ve formuláři');
                 return;
@@ -525,8 +542,9 @@
                 return;
             }
 
-            const saveData = {
-                type: 'attendance',
+            showLoading(true);
+
+            const dataToSave = {
                 date: currentDate,
                 attendanceRecords: attendanceRecords.map(record => ({
                     id: record.id || undefined,
@@ -537,16 +555,39 @@
                         start_time: breakItem.start_time,
                         end_time: breakItem.end_time
                     })).filter(b => b.start_time && b.end_time)
-                })).filter(r => r.clock_in) // Only include records with clock_in
+                })).filter(r => r.clock_in)
             };
 
-            tg.MainButton.showProgress();
-            tg.sendData(JSON.stringify(saveData));
-            
-            // Close after a short delay
-            setTimeout(() => {
-            tg.close();
-            }, 500);
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/attendance`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': tg.initData
+                    },
+                    body: JSON.stringify(dataToSave)
+                });
+                
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error || `HTTP error! Status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                showSuccess(`Uloženo! (${result.message})`);
+                tg.HapticFeedback.notificationOccurred('success');
+                
+                // Optionally refresh data to get IDs
+                await fetchAttendance(currentDate);
+                
+            } catch (error) {
+                console.error('Error saving attendance:', error);
+                showError(`Chyba při ukládání: ${error.message}`);
+                tg.HapticFeedback.notificationOccurred('error');
+            } finally {
+                showLoading(false);
+            }
         }
 
         // Set up save button
