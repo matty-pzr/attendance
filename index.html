@@ -528,33 +528,85 @@
             let isValid = true;
             const errors = [];
 
+            // Helper to convert time string "HH:MM" to minutes since start of day
+            const getMinutes = (timeStr) => {
+                if (!timeStr) return null;
+                const [h, m] = timeStr.split(':').map(Number);
+                return h * 60 + m;
+            };
+
+            // Prepare processed records for overlap check
+            const processedRecords = attendanceRecords.map((record, index) => {
+                if (!record.clock_in) return null;
+                
+                let start = getMinutes(record.clock_in);
+                let end = getMinutes(record.clock_out);
+                let isOvernight = false;
+
+                // Handle overnight: if end <= start, it ends the next day
+                if (record.clock_out && end <= start) {
+                    end += 24 * 60; // Add 24 hours
+                    isOvernight = true;
+                }
+                
+                return {
+                    index: index,
+                    start: start,
+                    end: end, // can be null if not clocked out
+                    isOvernight: isOvernight,
+                    raw: record
+                };
+            }).filter(r => r !== null);
+
+            // Check Overlaps
+            // Sort by start time to make it easier
+            processedRecords.sort((a, b) => a.start - b.start);
+
+            for (let i = 0; i < processedRecords.length - 1; i++) {
+                const current = processedRecords[i];
+                const next = processedRecords[i + 1];
+
+                // If current has an end time, check if it overlaps with next start
+                if (current.end !== null) {
+                    if (current.end > next.start) {
+                        isValid = false;
+                        errors.push(`Překryv času mezi Záznamem ${current.index + 1} (${current.raw.clock_in} - ${current.raw.clock_out}) a Záznamem ${next.index + 1} (${next.raw.clock_in}...)`);
+                    }
+                }
+            }
+
+            // Individual Record Validation
             attendanceRecords.forEach((record, recordIndex) => {
                 if (!record.clock_in) {
                     isValid = false;
                     errors.push(`Záznam ${recordIndex + 1}: Příchod je povinný`);
                 }
-
-                if (record.clock_out && record.clock_in) {
-                    if (record.clock_out <= record.clock_in) {
-                        isValid = false;
-                        errors.push(`Záznam ${recordIndex + 1}: Odchod musí být po příchodu`);
-                    }
+                
+                // Calculate shift bounds if clock_out is present
+                const shiftStart = getMinutes(record.clock_in);
+                let shiftEnd = getMinutes(record.clock_out);
+                if (record.clock_out && shiftEnd <= shiftStart) {
+                    shiftEnd += 24 * 60;
                 }
 
                 record.breaks.forEach((breakItem, breakIndex) => {
                     if (breakItem.start_time && breakItem.end_time) {
-                        if (breakItem.end_time <= breakItem.start_time) {
-                            isValid = false;
-                            errors.push(`Záznam ${recordIndex + 1}, Přestávka ${breakIndex + 1}: Konec musí být po začátku`);
+                        let bStart = getMinutes(breakItem.start_time);
+                        let bEnd = getMinutes(breakItem.end_time);
+                        
+                        // Auto-correct break crossing midnight (start > end)
+                        if (bEnd <= bStart) {
+                            bEnd += 24 * 60;
                         }
 
-                        // Check if break is within work period
-                        if (record.clock_in && record.clock_out) {
-                            if (breakItem.start_time < record.clock_in || breakItem.end_time > record.clock_out) {
-                                isValid = false;
-                                errors.push(`Záznam ${recordIndex + 1}, Přestávka ${breakIndex + 1}: Přestávka musí být v rámci pracovní doby`);
-                            }
+                        // Validate break end is after start (should be handled by auto-correct, but safe to keep)
+                        if (bEnd <= bStart) {
+                            isValid = false;
+                            errors.push(`Záznam ${recordIndex + 1}, Přestávka ${breakIndex + 1}: Konec musí být po začátku`);
+                            return;
                         }
+                        
+                        // Removed validation for breaks being within work hours as per user request.
                     }
                 });
             });
