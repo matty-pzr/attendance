@@ -283,12 +283,45 @@
                 const response = await fetch(`${API_BASE_URL}/api/attendance/${date}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': tg.initData
+                        'Authorization': tg.initData,
+                        'ngrok-skip-browser-warning': 'true'
                     }
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    // Try to get error message from response
+                    const contentType = response.headers.get('content-type');
+                    let errorMessage = `HTTP error! Status: ${response.status}`;
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.error || errorMessage;
+                        } catch (e) {
+                            // Ignore JSON parse error
+                        }
+                    } else {
+                        // Server returned HTML or other non-JSON content
+                        const text = await response.text();
+                        if (text.trim().startsWith('<')) {
+                            errorMessage = `Server returned HTML instead of JSON. Is the API server running? (Status: ${response.status})`;
+                        } else {
+                            errorMessage = `Server error: ${text.substring(0, 100)}`;
+                        }
+                    }
+                    
+                    throw new Error(errorMessage);
+                }
+                
+                // Check if response is actually JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    if (text.trim().startsWith('<')) {
+                        throw new Error('Server returned HTML instead of JSON. Please check if the Flask API server is running and the ngrok URL is correct.');
+                    } else {
+                        throw new Error(`Server returned unexpected content type: ${contentType}`);
+                    }
                 }
                 
                 const data = await response.json();
@@ -563,14 +596,31 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': tg.initData
+                        'Authorization': tg.initData,
+                        'ngrok-skip-browser-warning': 'true'
                     },
                     body: JSON.stringify(dataToSave)
                 });
                 
+                // Check if response is actually JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    if (text.trim().startsWith('<')) {
+                        throw new Error('Server returned HTML instead of JSON. Please check if the Flask API server is running and the ngrok URL is correct.');
+                    } else {
+                        throw new Error(`Server returned unexpected content type: ${contentType}`);
+                    }
+                }
+                
                 if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.error || `HTTP error! Status: ${response.status}`);
+                    try {
+                        const errData = await response.json();
+                        throw new Error(errData.error || `HTTP error! Status: ${response.status}`);
+                    } catch (parseError) {
+                        // If JSON parsing fails, use status code
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
                 }
                 
                 const result = await response.json();
