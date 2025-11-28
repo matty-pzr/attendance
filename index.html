@@ -247,6 +247,28 @@
         const API_BASE_URL = 'https://sedentary-rae-alterably.ngrok-free.dev';
 
         let tg = window.Telegram.WebApp;
+        
+        // Debug: Check Telegram WebApp initialization
+        console.log('[DEBUG] Telegram WebApp initialized');
+        console.log('[DEBUG] tg object:', tg);
+        console.log('[DEBUG] tg.initData:', tg.initData);
+        console.log('[DEBUG] tg.initData type:', typeof tg.initData);
+        console.log('[DEBUG] tg.initData length:', tg.initData ? tg.initData.length : 'undefined/null');
+        console.log('[DEBUG] tg.initData preview:', tg.initData ? tg.initData.substring(0, 100) + '...' : 'N/A');
+        console.log('[DEBUG] tg.ready:', tg.ready);
+        console.log('[DEBUG] tg.version:', tg.version);
+        
+        // Wait for Telegram WebApp to be ready
+        tg.ready();
+        
+        // Check if we're running inside Telegram
+        if (!tg.initData || tg.initData.length === 0) {
+            console.warn('[WARNING] tg.initData is not available. This might be because:');
+            console.warn('1. App is not opened from Telegram');
+            console.warn('2. Telegram WebApp is not fully initialized yet');
+            console.warn('3. initData is not available in this context');
+        }
+        
         tg.expand();
         tg.MainButton.setText("Uložit");
         tg.MainButton.show();
@@ -279,11 +301,29 @@
             showLoading(true);
             hideStatus();
             
+            // Debug: Check initData before making request
+            console.log('[DEBUG] fetchAttendance called for date:', date);
+            console.log('[DEBUG] tg.initData at fetch time:', tg.initData);
+            console.log('[DEBUG] tg.initData is empty?', !tg.initData || tg.initData.length === 0);
+            console.log('[DEBUG] tg.initData type:', typeof tg.initData);
+            
+            if (!tg.initData || tg.initData.length === 0) {
+                console.error('[ERROR] tg.initData is empty or undefined!');
+                showError('Telegram authentication data is missing. Please open this app from Telegram.');
+                showLoading(false);
+                return;
+            }
+            
             try {
+                const authHeader = tg.initData || '';
+                console.log('[DEBUG] Sending Authorization header length:', authHeader.length);
+                console.log('[DEBUG] Authorization header preview:', authHeader.substring(0, 100) + '...');
+                console.log('[DEBUG] Full request URL:', `${API_BASE_URL}/api/attendance/${date}`);
+                
                 const response = await fetch(`${API_BASE_URL}/api/attendance/${date}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': tg.initData,
+                        'Authorization': authHeader,
                         'ngrok-skip-browser-warning': 'true'
                     }
                 });
@@ -591,12 +631,27 @@
                 })).filter(r => r.clock_in)
             };
 
+            // Debug: Check initData before saving
+            console.log('[DEBUG] saveData called');
+            console.log('[DEBUG] tg.initData at save time:', tg.initData);
+            console.log('[DEBUG] tg.initData is empty?', !tg.initData || tg.initData.length === 0);
+            
+            if (!tg.initData || tg.initData.length === 0) {
+                console.error('[ERROR] tg.initData is empty or undefined in saveData!');
+                showError('Telegram authentication data is missing. Please open this app from Telegram.');
+                showLoading(false);
+                return;
+            }
+            
             try {
+                const authHeader = tg.initData || '';
+                console.log('[DEBUG] Sending Authorization header in POST, length:', authHeader.length);
+                
                 const response = await fetch(`${API_BASE_URL}/api/attendance`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': tg.initData,
+                        'Authorization': authHeader,
                         'ngrok-skip-browser-warning': 'true'
                     },
                     body: JSON.stringify(dataToSave)
