@@ -217,6 +217,25 @@
             transform: scale(0.98);
         }
 
+        .cancel-btn {
+            width: 100%;
+            background-color: transparent;
+            color: var(--tg-theme-destructive-text-color, #ff3b30);
+            border: 1px solid var(--tg-theme-destructive-text-color, #ff3b30);
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 24px;
+            transition: opacity 0.2s;
+        }
+        
+        .cancel-btn:active {
+            opacity: 0.6;
+            background-color: rgba(255, 59, 48, 0.05);
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -382,6 +401,7 @@
         </div>
 
         <button class="add-record-btn" onclick="addAttendanceRecord()">+ Přidat záznam</button>
+        <button class="cancel-btn" onclick="resetData()">Zrušit změny</button>
 
         <!-- Modal -->
         <div id="invalid-dates-modal" class="modal-overlay">
@@ -429,13 +449,11 @@
         tg.MainButton.show();
         tg.MainButton.enable();
         
-        // Setup Back Button (Close/Go Back)
-        tg.BackButton.show();
-        tg.BackButton.onClick(function() {
-            tg.close();
-        });
+        // Remove Back Button if it was enabled
+        tg.BackButton.hide();
 
         let attendanceRecords = [];
+        let originalAttendanceRecords = [];
         let currentDate = new Date().toISOString().split('T')[0];
         
         // Initialize
@@ -611,6 +629,9 @@
                     end_time: breakItem.end_time || ''
                 }))
             }));
+            
+            // Save original state for revert
+            originalAttendanceRecords = JSON.parse(JSON.stringify(attendanceRecords));
 
             renderRecords();
             hideStatus();
@@ -749,6 +770,16 @@
             attendanceRecords[recordIndex].breaks.splice(breakIndex, 1);
             renderRecords();
             hideStatus();
+        }
+
+        // Reset data to original state
+        function resetData() {
+            if (confirm('Opravdu chcete zrušit všechny neuložené změny?')) {
+                attendanceRecords = JSON.parse(JSON.stringify(originalAttendanceRecords));
+                renderRecords();
+                hideStatus();
+                tg.HapticFeedback.notificationOccurred('warning');
+            }
         }
 
         // Validate form
