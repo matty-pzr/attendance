@@ -381,6 +381,96 @@
             }
         }
 
+        // Load attendance data
+        function loadAttendanceData(records) {
+            attendanceRecords = records.map(record => ({
+                id: record.id || null,
+                clock_in: record.clock_in || '',
+                clock_out: record.clock_out || '',
+                breaks: (record.breaks || []).map(breakItem => ({
+                    id: breakItem.id || null,
+                    start_time: breakItem.start_time || '',
+                    end_time: breakItem.end_time || ''
+                }))
+            }));
+
+            renderRecords();
+            hideStatus();
+        }
+
+        // Render all records
+        function renderRecords() {
+            const container = document.getElementById('attendance-records-container');
+            
+            if (attendanceRecords.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>Žádné záznamy docházky</p>
+                        <p>Klikněte na "Přidat záznam" pro vytvoření nového záznamu</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = attendanceRecords.map((record, recordIndex) => `
+                <div class="record-card">
+                    <div class="record-header">
+                        <div class="record-title">Záznam ${recordIndex + 1}</div>
+                        <button class="remove-record-btn" onclick="removeAttendanceRecord(${recordIndex})">Odstranit</button>
+                    </div>
+                    <div class="time-inputs">
+                        <div class="time-group">
+                            <label>Příchod (HH:MM)</label>
+                            <input 
+                                type="time" 
+                                value="${record.clock_in}" 
+                                onchange="updateRecordField(${recordIndex}, 'clock_in', this.value)"
+                                required
+                            />
+                        </div>
+                        <div class="time-group">
+                            <label>Odchod (HH:MM)</label>
+                            <input 
+                                type="time" 
+                                value="${record.clock_out}" 
+                                onchange="updateRecordField(${recordIndex}, 'clock_out', this.value)"
+                            />
+                        </div>
+                    </div>
+                    <div class="breaks-section">
+                        <div class="breaks-header">
+                            <div class="breaks-title">Přestávky</div>
+                            <button class="add-break-btn" onclick="addBreak(${recordIndex})">+ Přidat přestávku</button>
+                        </div>
+                        ${record.breaks.map((breakItem, breakIndex) => `
+                            <div class="break-item">
+                                <div class="break-time-inputs">
+                                    <div class="time-group">
+                                        <label>Začátek</label>
+                                        <input 
+                                            type="time" 
+                                            value="${breakItem.start_time}" 
+                                            onchange="updateBreakField(${recordIndex}, ${breakIndex}, 'start_time', this.value)"
+                                        />
+                                    </div>
+                                    <div class="time-group">
+                                        <label>Konec</label>
+                                        <input 
+                                            type="time" 
+                                            value="${breakItem.end_time}" 
+                                            onchange="updateBreakField(${recordIndex}, ${breakIndex}, 'end_time', this.value)"
+                                        />
+                                    </div>
+                                    <button class="remove-break-btn" onclick="removeBreak(${recordIndex}, ${breakIndex})">Odstranit</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                        ${record.breaks.length === 0 ? '<p style="font-size: 12px; color: var(--tg-theme-hint-color, #999999);">Žádné přestávky</p>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
         // Update record field
         function updateRecordField(recordIndex, field, value) {
             attendanceRecords[recordIndex][field] = value;
