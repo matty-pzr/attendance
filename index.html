@@ -18,10 +18,18 @@
             color: var(--tg-theme-text-color, #000000);
             padding: 16px;
             padding-bottom: 80px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .header {
             margin-bottom: 20px;
+            text-align: center;
         }
 
         .header h1 {
@@ -47,9 +55,15 @@
             padding: 12px;
             font-size: 16px;
             border: 1px solid var(--tg-theme-hint-color, #cccccc);
-            border-radius: 8px;
+            border-radius: 12px;
             background-color: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
+            transition: border-color 0.2s;
+        }
+
+        .date-picker input:focus {
+            border-color: var(--tg-theme-button-color, #0088cc);
+            outline: none;
         }
 
         .attendance-records {
@@ -58,9 +72,10 @@
 
         .record-card {
             background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .record-header {
@@ -71,52 +86,61 @@
         }
 
         .record-title {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
         }
 
         .remove-record-btn {
-            background-color: var(--tg-theme-destructive-text-color, #ff3b30);
-            color: white;
-            border: none;
+            background-color: transparent;
+            color: var(--tg-theme-destructive-text-color, #ff3b30);
+            border: 1px solid var(--tg-theme-destructive-text-color, #ff3b30);
             padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 8px;
+            font-size: 13px;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .remove-record-btn:active {
+            opacity: 0.7;
+            transform: scale(0.98);
         }
 
         .time-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
             gap: 12px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .time-group {
             display: flex;
             flex-direction: column;
+            flex: 1;
+            min-width: 120px;
         }
 
         .time-group label {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             margin-bottom: 6px;
             color: var(--tg-theme-hint-color, #999999);
         }
 
         .time-group input {
-            padding: 10px;
-            font-size: 14px;
+            padding: 12px;
+            font-size: 16px; /* Prevents zoom on iOS */
             border: 1px solid var(--tg-theme-hint-color, #cccccc);
-            border-radius: 6px;
+            border-radius: 10px;
             background-color: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
+            width: 100%;
         }
 
         .breaks-section {
             margin-top: 16px;
             padding-top: 16px;
-            border-top: 1px solid var(--tg-theme-hint-color, #cccccc);
+            border-top: 1px solid rgba(0,0,0,0.1);
         }
 
         .breaks-header {
@@ -127,45 +151,51 @@
         }
 
         .breaks-title {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
         }
 
         .add-break-btn {
-            background-color: var(--tg-theme-button-color, #0088cc);
-            color: var(--tg-theme-button-text-color, #ffffff);
+            background-color: rgba(0, 136, 204, 0.1);
+            color: var(--tg-theme-button-color, #0088cc);
             border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
         }
 
         .break-item {
             background-color: var(--tg-theme-bg-color, #ffffff);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 12px;
-            margin-bottom: 8px;
-            display: flex;
-            gap: 8px;
-            align-items: flex-end;
+            margin-bottom: 10px;
         }
 
         .break-time-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 8px;
-            flex: 1;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        .break-time-inputs .time-group {
+            flex: 1 1 100px; /* Grow, Shrink, Base width */
         }
 
         .remove-break-btn {
-            background-color: var(--tg-theme-destructive-text-color, #ff3b30);
-            color: white;
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--tg-theme-destructive-text-color, #ff3b30);
             border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
             cursor: pointer;
+            height: 45px; /* Match input height approx */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .add-record-btn {
@@ -173,22 +203,31 @@
             background-color: var(--tg-theme-button-color, #0088cc);
             color: var(--tg-theme-button-text-color, #ffffff);
             border: none;
-            padding: 14px;
-            border-radius: 8px;
+            padding: 16px;
+            border-radius: 12px;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 136, 204, 0.2);
+            transition: transform 0.2s;
+        }
+        
+        .add-record-btn:active {
+            transform: scale(0.98);
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 60px 20px;
             color: var(--tg-theme-hint-color, #999999);
+            background: var(--tg-theme-secondary-bg-color, #f9f9f9);
+            border-radius: 16px;
+            border: 2px dashed rgba(0,0,0,0.05);
         }
 
         .empty-state p {
-            font-size: 14px;
+            font-size: 15px;
             margin-bottom: 16px;
         }
 
@@ -202,43 +241,157 @@
             background-color: rgba(255, 59, 48, 0.1);
             color: var(--tg-theme-destructive-text-color, #ff3b30);
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 16px;
             font-size: 14px;
+            border-left: 4px solid #ff3b30;
         }
         
         .success-message {
             background-color: rgba(52, 199, 89, 0.1);
             color: var(--tg-theme-text-color, #000000);
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 16px;
             font-size: 14px;
             border-left: 4px solid #34c759;
         }
+
+        /* Invalid Records Feature Styles */
+        .fix-btn {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: #ff9500;
+            border: 1px solid #ff9500;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            display: none; /* Hidden by default */
+            width: 100%;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal {
+            background: var(--tg-theme-bg-color, #ffffff);
+            padding: 20px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        
+        .modal h3 {
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .invalid-date-item {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .invalid-date-item:last-child {
+            border-bottom: none;
+        }
+        
+        .close-modal-btn {
+            margin-top: 16px;
+            width: 100%;
+            padding: 12px;
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+        .status-valid {
+            background-color: rgba(52, 199, 89, 0.2);
+            color: #34c759;
+        }
+        .status-invalid {
+            background-color: rgba(255, 59, 48, 0.2);
+            color: #ff3b30;
+        }
+
+        @media (max-width: 360px) {
+            .time-inputs {
+                flex-direction: column;
+            }
+            .break-time-inputs {
+                gap: 8px;
+            }
+            .remove-break-btn {
+                width: 100%;
+                margin-top: 4px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>📅 Editor docházky</h1>
-    </div>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Editor docházky</h1>
+            <button id="fix-incomplete-btn" class="fix-btn" onclick="showInvalidDatesModal()">
+                ⚠️ Vyřešit nekompletní záznamy
+            </button>
+        </div>
 
-    <div class="date-picker">
-        <label for="date-input">Datum</label>
-        <input type="date" id="date-input" />
-    </div>
+        <div class="date-picker">
+            <label for="date-input">Datum</label>
+            <input type="date" id="date-input" />
+        </div>
 
-    <div id="status-container"></div>
-    <div id="loading-container" class="loading" style="display: none;">Načítání...</div>
+        <div id="status-container"></div>
+        <div id="loading-container" class="loading" style="display: none;">Načítání...</div>
 
-    <div id="attendance-records-container">
-        <div class="empty-state">
-            <p>Žádné záznamy docházky</p>
-            <p>Klikněte na "Přidat záznam" pro vytvoření nového záznamu</p>
+        <div id="attendance-records-container">
+            <div class="empty-state">
+                <p>Žádné záznamy docházky</p>
+                <p>Klikněte na "Přidat záznam" pro vytvoření nového záznamu</p>
+            </div>
+        </div>
+
+        <button class="add-record-btn" onclick="addAttendanceRecord()">+ Přidat záznam</button>
+
+        <!-- Modal -->
+        <div id="invalid-dates-modal" class="modal-overlay">
+            <div class="modal">
+                <h3>Nekompletní dny</h3>
+                <div id="invalid-dates-list"></div>
+                <button class="close-modal-btn" onclick="closeInvalidDatesModal()">Zavřít</button>
+            </div>
         </div>
     </div>
-
-    <button class="add-record-btn" onclick="addAttendanceRecord()">+ Přidat záznam</button>
 
     <script>
         // CONFIGURATION
@@ -285,6 +438,9 @@
 
             // Fetch data for today immediately
             fetchAttendance(currentDate);
+            
+            // Check for invalid dates
+            fetchInvalidDates();
 
             // Listen for date changes
             dateInput.addEventListener('change', function(e) {
@@ -294,6 +450,60 @@
                     fetchAttendance(selectedDate);
                 }
             });
+        }
+
+        // Fetch invalid dates
+        async function fetchInvalidDates() {
+            if (!tg.initData) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/attendance/invalid`, {
+                    headers: {
+                        'Authorization': tg.initData,
+                        'ngrok-skip-browser-warning': 'true'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.invalidDates && data.invalidDates.length > 0) {
+                        const btn = document.getElementById('fix-incomplete-btn');
+                        btn.style.display = 'block';
+                        btn.innerHTML = `⚠️ Vyřešit nekompletní záznamy (${data.invalidDates.length})`;
+                        
+                        // Populate list
+                        const list = document.getElementById('invalid-dates-list');
+                        list.innerHTML = data.invalidDates.map(date => `
+                            <div class="invalid-date-item" onclick="selectInvalidDate('${date}')">
+                                <span>${date}</span>
+                                <span style="color: var(--tg-theme-button-color, #0088cc);">Opravit →</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        document.getElementById('fix-incomplete-btn').style.display = 'none';
+                    }
+                }
+            } catch (e) {
+                console.error('Error fetching invalid dates:', e);
+            }
+        }
+
+        // Show/Hide Modal
+        function showInvalidDatesModal() {
+            document.getElementById('invalid-dates-modal').style.display = 'flex';
+        }
+        
+        function closeInvalidDatesModal() {
+            document.getElementById('invalid-dates-modal').style.display = 'none';
+        }
+        
+        // Select date from modal
+        function selectInvalidDate(date) {
+            const dateInput = document.getElementById('date-input');
+            dateInput.value = date;
+            currentDate = date;
+            fetchAttendance(date);
+            closeInvalidDatesModal();
         }
 
         // Fetch attendance data from API
@@ -412,10 +622,18 @@
                 return;
             }
 
-            container.innerHTML = attendanceRecords.map((record, recordIndex) => `
+            container.innerHTML = attendanceRecords.map((record, recordIndex) => {
+                const isComplete = record.clock_in && record.clock_out;
+                const badgeClass = isComplete ? 'status-valid' : 'status-invalid';
+                const badgeText = isComplete ? 'Kompletní' : 'Nekompletní';
+                
+                return `
                 <div class="record-card">
                     <div class="record-header">
-                        <div class="record-title">Záznam ${recordIndex + 1}</div>
+                        <div class="record-title">
+                            Záznam ${recordIndex + 1}
+                            <span class="status-badge ${badgeClass}">${badgeText}</span>
+                        </div>
                         <button class="remove-record-btn" onclick="removeAttendanceRecord(${recordIndex})">Odstranit</button>
                     </div>
                     <div class="time-inputs">
@@ -468,7 +686,7 @@
                         ${record.breaks.length === 0 ? '<p style="font-size: 12px; color: var(--tg-theme-hint-color, #999999);">Žádné přestávky</p>' : ''}
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         // Update record field
