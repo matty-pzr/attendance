@@ -423,9 +423,17 @@
         }
         
         tg.expand();
+        
+        // Setup Main Button (Save)
         tg.MainButton.setText("Uložit");
         tg.MainButton.show();
         tg.MainButton.enable();
+        
+        // Setup Back Button (Close/Go Back)
+        tg.BackButton.show();
+        tg.BackButton.onClick(function() {
+            tg.close();
+        });
 
         let attendanceRecords = [];
         let currentDate = new Date().toISOString().split('T')[0];
@@ -961,11 +969,6 @@
                 
                 showSuccess(`Uloženo! (${result.message})`);
                 tg.HapticFeedback.notificationOccurred('success');
-                
-                // Close the app after a short delay to let user see success message
-                setTimeout(() => {
-                    tg.close();
-                }, 1500);
                 
                 // Optionally refresh data to get IDs
                 await fetchAttendance(currentDate);
