@@ -1001,6 +1001,9 @@
                 // Optionally refresh data to get IDs
                 await fetchAttendance(currentDate);
                 
+                // Refresh invalid dates counter
+                await fetchInvalidDates();
+                
             } catch (error) {
                 console.error('Error saving attendance:', error);
                 showError(`Chyba při ukládání: ${error.message}`);
