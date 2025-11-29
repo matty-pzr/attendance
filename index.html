@@ -220,7 +220,13 @@
         .button-group {
             display: flex;
             gap: 12px;
-            margin-bottom: 24px;
+            margin-bottom: 0;
+            position: sticky;
+            bottom: 0;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            padding: 16px 0;
+            z-index: 100;
+            border-top: 1px solid rgba(0,0,0,0.05); /* visual separator */
         }
         .button-group button {
             flex: 1;
